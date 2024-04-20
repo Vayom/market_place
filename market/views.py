@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from market.models import Product, Order, Cart
+from market.models import Product, Order, Cart, Review
 from market.serializers import ProductSerializer, OrderSerializer, CartSerializer
 from market.permissions import IsOwnerOrReadOnly, IsSellerOrReadOnly, IsOwner
 
@@ -90,15 +90,15 @@ class CreateOrderFromCart(APIView):
 class CancelOrder(APIView):
     def post(self, request, order_id):
         user = request.user
+        if not user.is_authenticated:
+            return Response({'message': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
         try:
             order = Order.objects.get(id=order_id)
             if order.status != 'Pending':
                 return Response({'message': 'The order cannot be cancelled'})
         except Order.DoesNotExist:
             return Response({'message': 'Order does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        if not user.is_authenticated:
-            return Response({'message': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
-
         if order.user != user:
             return Response({'message': 'Bad User'}, status=status.HTTP_404_NOT_FOUND)
         cart = Cart.objects.get(user=user)
@@ -111,3 +111,21 @@ class CancelOrder(APIView):
         serializer = CartSerializer(cart)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateReviewView(APIView):
+    def post(self, request, product_id):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'message': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            product = Product.objects.get(id=product_id)
+            text = request.data.get('text')
+            rating = request.data.get('rating')
+        except Product.DoesNotExist:
+            return Response({'message': 'Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except AttributeError:
+            return Response({'message': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+        review = Review.objects.create(user=user, product=product, text=text, rating=rating)
+        return Response({'message': 'Review successfully'}, status=status.HTTP_201_CREATED)
+
