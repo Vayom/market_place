@@ -50,7 +50,9 @@ class Review(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.PositiveIntegerField()
-    # Другие поля, такие как дата и время отзыва, могут быть добавлены по вашему усмотрению
+
+    def __str__(self):
+        return f"Review {self.id} by {self.user} for product {self.product.name}"
 
 
 class UserProfile(models.Model):
