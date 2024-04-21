@@ -39,8 +39,6 @@ class Payment(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
-    # Другие поля, связанные с категориями товаров, могут быть добавлены по вашему усмотрению
-
     def __str__(self):
         return self.name
 
