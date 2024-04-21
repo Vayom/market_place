@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from market.models import Product, Order, Cart
+from market.models import Product, Order, Cart, Review
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -56,3 +56,9 @@ class CartSerializer(serializers.ModelSerializer):
 
     def get_products_names(self, obj):
         return [product.name for product in obj.products.all()]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
