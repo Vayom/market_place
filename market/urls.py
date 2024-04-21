@@ -21,6 +21,7 @@ urlpatterns = [
     path('order_cancel/<int:order_id>', views.CancelOrder.as_view(), name='order_cancel'),
 
     path('create_review/<int:product_id>', views.CreateReviewView.as_view(), name='create_review'),
+    path('delete_review/<int:review_id>', views.DeleteReviewView.as_view(), name='delete_review'),
 
     path('', include(router.urls), name='my_products'),
 ]
