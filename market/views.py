@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from market.models import Product, Order, Cart, Review
-from market.serializers import ProductSerializer, OrderSerializer, CartSerializer
+from market.serializers import ProductSerializer, OrderSerializer, CartSerializer, ReviewSerializer
 from market.permissions import IsOwnerOrReadOnly, IsSellerOrReadOnly, IsOwner
 
 
@@ -129,3 +129,16 @@ class CreateReviewView(APIView):
         review = Review.objects.create(user=user, product=product, text=text, rating=rating)
         return Response({'message': 'Review successfully'}, status=status.HTTP_201_CREATED)
 
+
+class DeleteReviewView(generics.DestroyAPIView):
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def get_object(self):
+        try:
+            review = Review.objects.get(id=self.kwargs['review_id'])
+            self.check_object_permissions(self.request, review)
+            return review
+        except Review.DoesNotExist:
+            return Response({'message': 'Review does not exist'}, status=status.HTTP_404_NOT_FOUND)
